@@ -1,7 +1,7 @@
 // pushfix.js v3 — убираем ядовитый автозапрос + точная диагностика
 if (window.state) state._pushDone = true; // больше никаких автозапросов без пальца!
 
-var VAPID_PUBLIC_KEY='BG2CGhCgW0qj8agahh4LfOgkD0yK-EwHIb77NJgCzIBCXojGZ6wPnkuCyDot6CeIKvrx84MQgcd7RtPj4yZzYLQ';
+var VAPID_PUBLIC_KEY='BA6icKdVrGG4Tok0oIZwmTE1q807B8x6aKVYCGAeRVhfGXqt8OiXmCNRqnqp7coL17Awazxe6vVolfF8mvO7JN4';
 function urlBase64ToUint8Array(s){var p='='.repeat((4-s.length%4)%4);var b=(s+p).replace(/\-/g,'+').replace(/_/g,'/');var r=window.atob(b);var a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
 
 async function subscribePush(force){
