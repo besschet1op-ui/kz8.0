@@ -2385,6 +2385,9 @@ renderHome=function(v){_rhome(v);var hero=v.querySelector('.hero');if(hero&&stat
 var _rprof=renderProfile;
 renderProfile=function(v){_rprof(v);v.appendChild(h('div',{class:'gtitle'},'🔐 ЖУРНАЛ ВХОДОВ'));var card=h('div',{class:'card'});if(state.loginLog.length){state.loginLog.slice(0,5).forEach(function(l){card.appendChild(h('div',{class:'login-row'},h('div',{class:'li '+(l.ok?'ok':'bad')},l.ok?'✅':'❌'),h('div',{style:{flex:'1'}},h('b',{style:{fontSize:'13px'}},(l.ok?'Вход':'Ошибка')+' · '+l.m),h('small',{class:'cl-gr'},fmtDT(l.t)))))})}else card.appendChild(h('div',{class:'empty'},'История пуста'));v.appendChild(card)};
 </script>
+<script src="v18core.js"></script>
+<script src="v18search.js"></script>
+</body>
 </body>
 </body>
 </html>
