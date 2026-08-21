@@ -1,0 +1,26 @@
+/* ===== КМ·Инженер v18 ===== */
+.offline-banner{position:fixed;top:0;left:0;right:0;z-index:9997;background:linear-gradient(90deg,#ff9f0a,#ff6b35);color:#fff;text-align:center;font-size:12px;font-weight:700;padding:6px 10px calc(6px + env(safe-area-inset-top,0))}
+.bub.pending{opacity:.6}
+.bub.failed{border:1.5px solid var(--red)}
+html[data-fs="large"] .bub{font-size:17px}
+html[data-fs="large"] .tcard b.tt{font-size:17px}
+html[data-fs="large"] .scard b{font-size:16px}
+html[data-fs="large"] .chat-input .inp{font-size:17px}
+html[data-compact] .tcard{padding:10px}
+html[data-compact] .scard{padding:9px 12px}
+html[data-compact] .grow{padding:10px}
+html[data-compact] .card{margin-bottom:10px}
+.gs-overlay{position:fixed;inset:0;z-index:9996;background:var(--bg);display:flex;flex-direction:column;padding:calc(12px + env(safe-area-inset-top,0)) 14px 20px}
+.gs-head{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.gs-head input{flex:1;background:var(--card);border:1px solid var(--sep);border-radius:14px;padding:12px 16px;font-size:16px;color:var(--label);outline:none}
+.gs-head input:focus{border-color:var(--blue)}
+.gs-head button{width:42px;height:42px;border-radius:50%;background:var(--card2);font-size:18px;flex:none}
+.gs-body{flex:1;overflow-y:auto}
+.gs-group{font-size:11px;font-weight:700;color:var(--label3);text-transform:uppercase;letter-spacing:.08em;margin:14px 4px 6px}
+.gs-item{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--sep2);border-radius:12px;padding:10px 12px;margin-bottom:6px;width:100%;text-align:left}
+.gs-item:active{background:var(--card2)}
+.gs-item .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--card2);font-size:16px;flex:none}
+.gs-item b{font-size:14px;display:block}
+.gs-item small{font-size:11px;color:var(--label2)}
+.pin-bar{display:flex;gap:8px;align-items:center;background:rgba(255,159,10,.12);border:1px solid rgba(255,159,10,.3);border-radius:12px;padding:8px 12px;margin-bottom:8px;font-size:12px;font-weight:600}
+.pin-bar .pin-x{margin-left:auto;color:var(--red);font-weight:700}
