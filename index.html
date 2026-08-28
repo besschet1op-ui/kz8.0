@@ -2293,9 +2293,135 @@ ICONS.reply=ICONS.reply||'<polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4
 </script>
 <script src="vksfix.js"></script>
 <script src="realtime.js?v=2"></script>
-<script src="v17a.js"></script>
-<script src="v17b.js"></script>
-<script src="v17c.js"></script>
-<script src="v36.js"></script>
+<script>
+/* ===== КМ·Инженер 36 — финальный модуль (исправленный) ===== */
+if(!window.__v36){window.__v36=1;(function(){
+var NL=String.fromCharCode(10);
+state.accent=localStorage.getItem('km-accent')||'blue';
+state.quiet=localStorage.getItem('km-quiet')==='1';
+state.autoDark=localStorage.getItem('km-autodark')==='1';
+state.chatRead=state.chatRead||{};try{Object.assign(state.chatRead,JSON.parse(localStorage.getItem('km-read')||'{}'))}catch(e){}
+state.reactions=state.reactions||{};try{Object.assign(state.reactions,JSON.parse(localStorage.getItem('km-react')||'{}'))}catch(e){}
+state.checklists=state.checklists||{};state.comments=state.comments||{};
+state.offQueue=state.offQueue||[];state.saver=false;
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function isFav(t,id){return(state.favorites[t]||[]).indexOf(id)>=0}
+function toggleFav(t,id){var a=state.favorites[t]=state.favorites[t]||[];var i=a.indexOf(id);if(i>=0)a.splice(i,1);else a.push(id);saveLocal();vib(10);render()}
+var css=document.createElement('style');
+css.textContent='.favstar{position:absolute;top:10px;right:12px;font-size:16px;cursor:pointer;color:var(--gray)}.favstar.on{color:var(--orange)}'+
+'.react-row{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}.react-chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;background:var(--card2);border:1px solid var(--sep2)}'+
+'.react-chip.mine{background:rgba(10,132,255,.15);color:var(--blue);border-color:var(--blue)}'+
+'.ctx-menu{position:fixed;z-index:9600;background:var(--card-solid);border:1px solid var(--sep);border-radius:14px;box-shadow:var(--sh-lg);padding:6px;min-width:180px}'+
+'.ctx-item{display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;width:100%;text-align:left}.ctx-item:active{background:var(--card2)}'+
+'.acc-dot{width:26px;height:26px;border-radius:50%;border:2px solid transparent}.acc-dot.on{border-color:var(--label)}'+
+'.ck-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px}.ck-box{width:20px;height:20px;border-radius:6px;border:2px solid var(--gray);display:grid;place-items:center;font-size:11px;color:#fff;flex:none;cursor:pointer}.ck-box.on{background:var(--green);border-color:var(--green)}.ck-item.done span{text-decoration:line-through;opacity:.5}'+
+'.cm-card{background:var(--card2);border:1px solid var(--sep2);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:13px}';
+document.head.appendChild(css);
+var ACC={blue:['#5fc9f5','#0a84ff','#0055d4'],green:['#35d07f','#28b36b','#1a8f52'],violet:['#a78bfa','#8e6cf0','#5c3fd4'],orange:['#ffb84d','#ff9f0a','#ff6b35']};
+function applyAccent(){var a=ACC[state.accent]||ACC.blue;var r=document.documentElement.style;r.setProperty('--blue',a[1]);r.setProperty('--blue2',a[2]);r.setProperty('--grad','linear-gradient(135deg,'+a[0]+' 0%,'+a[1]+' 50%,'+a[2]+' 100%)')}
+applyAccent();
+function inQuiet(){if(!state.quiet)return false;var h=new Date().getHours();return h>=22||h<7}
+var _ps=playSound;playSound=function(){if(inQuiet())return;_ps()};
+var _ns=notifySystem;notifySystem=function(t,b){if(inQuiet())return;_ns(t,b)};
+function autoDark(){if(!state.autoDark)return;var h=new Date().getHours();document.documentElement.setAttribute('data-theme',(h>=21||h<7)?'dark':'light')}
+setInterval(autoDark,60000);autoDark();
+if(navigator.getBattery)navigator.getBattery().then(function(b){function u(){state.saver=b.level<0.2&&!b.charging}u();b.addEventListener('levelchange',u);b.addEventListener('chargingchange',u)}).catch(function(){});
+var _tt=tickTelemetry;tickTelemetry=function(){if(state.saver&&Math.random()<0.5)return;_tt()};
+var _tc=taskCard;
+taskCard=function(t){var c=_tc(t);c.style.position='relative';if(!c.querySelector('.favstar'))c.appendChild(h('span',{class:'favstar'+(isFav('tasks',t.id)?' on':''),onclick:function(e){e.stopPropagation();toggleFav('tasks',t.id)}},isFav('tasks',t.id)?'★':'☆'));return c};
+var _sc=staffCard;
+staffCard=function(e){var c=_sc(e);var a=c.querySelector('.acts');if(a&&!c.querySelector('.favstar'))a.insertBefore(h('button',{class:'press favstar',style:{position:'static',color:isFav('employees',e.id)?'var(--orange)':'var(--gray)'},onclick:function(ev){ev.stopPropagation();toggleFav('employees',e.id)}},isFav('employees',e.id)?'★':'☆'),a.firstChild);return c};
+var _rh=renderHome;
+renderHome=function(v){_rh(v);var f=state.tasks.filter(function(t){return isFav('tasks',t.id)});if(f.length&&!v.querySelector('[data-favhome]')){var s=h('div',{'data-favhome':'1'});s.appendChild(h('div',{class:'gtitle'},'⭐ ИЗБРАННОЕ'));f.slice(0,3).forEach(function(t){s.appendChild(taskCard(t))});var p=v.querySelector('.route-pipeline');if(p&&p.parentNode)p.parentNode.insertBefore(s,p)}};
+var _rnt=renderNewTask;
+renderNewTask=function(v){_rnt(v);var btn=v.querySelector('.btn.b.full');if(btn&&!v.querySelector('#ntPrio')){var w=h('div',{});
+w.appendChild(h('div',{class:'fld'},h('label',{},'Приоритет'),(function(){var s=h('select',{id:'ntPrio'});[['med','Средний'],['high','Высокий'],['low','Низкий']].forEach(function(p){s.appendChild(h('option',{value:p[0]},p[1]))});return s})()));
+w.appendChild(h('div',{class:'fld'},h('label',{},'Дедлайн'),h('input',{id:'ntDue',type:'datetime-local'})));
+btn.parentNode.insertBefore(w,btn)}};
+var _ct=createTask;
+createTask=async function(){var p=$('#ntPrio'),d=$('#ntDue');if(!p||!d)return _ct();
+var title=$('#ntTitle').value.trim(),desc=$('#ntDesc').value.trim();
+var execUid=$('#ntExec').value,execName=execUid?$('#ntExec option:checked').textContent:'';
+if(!title){showIsland('Введите заголовок','warn','o');return}
+if(!sbOk){showIsland('Supabase не подключён','warn','o');return}
+var evId=state.taskEvent||null;
+try{await sb.from('tasks').insert({title:title,descr:desc,executor_id:execUid||null,executor_name:execName,author_id:state.user.id,author_name:state.user.name,stage:'new',priority:p.value,due:d.value?new Date(d.value).toISOString():new Date(Date.now()+72*3600000).toISOString(),event_id:evId,created_at:new Date().toISOString()});
+if(execUid)await sb.from('notifications').insert({user_id:execUid,text:'📋 Новая задача: '+title,type:'task'});
+showIsland('Задача создана','task','g');vib(30);state.page=evId?('event:'+evId):null;state.taskEvent=null;render();
+}catch(e){showIsland('Ошибка создания','warn','o')}};
+var _rt=renderTasks;
+renderTasks=function(v){_rt(v);
+var flt=v.querySelector('.filters');
+if(flt&&!flt.querySelector('[data-fav]'))flt.appendChild(h('button',{class:'filter-chip press','data-fav':'1',onclick:function(){state.taskFilter=state.taskFilter==='fav'?'all':'fav';render()}},'⭐'));
+if(!v.querySelector('[data-csv]'))v.appendChild(h('button',{class:'btn sm card press','data-csv':'1',style:{position:'absolute',right:'16px',top:'16px'},onclick:function(){
+var rows=[['ID','Заголовок','Статус','Приоритет','Исполнитель','Дедлайн']];
+state.tasks.forEach(function(t){rows.push([(t.id||'').slice(0,8),t.title||'',t.stage||'',t.priority||'',t.executor_name||'',t.due?fmtDT(t.due):''])});
+var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"'}).join(';')}).join(NL);
+var b=new Blob(['\ufeff'+csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='tasks.csv';a.click();URL.revokeObjectURL(a.href);
+showIsland('CSV скачан','download','g')}},'📤 CSV'));
+};
+var _rtd=renderTaskDetail;
+renderTaskDetail=function(v,id){_rtd(v,id);var t=state.tasks.find(function(x){return x.id===id});if(!t)return;var body=v.lastChild;
+var cl=state.checklists[id]||[];
+var cb=h('div',{class:'card',style:{padding:'12px',marginTop:'12px'}});
+cb.appendChild(h('div',{class:'gtitle',style:{padding:'0 0 8px'}},'✅ ЧЕК-ЛИСТ'));
+cl.forEach(function(it,i){cb.appendChild(h('div',{class:'ck-item'+(it.done?' done':'')},h('div',{class:'ck-box'+(it.done?' on':''),onclick:function(){it.done=!it.done;save('km-ck',state.checklists);render()}},it.done?'✓':''),h('span',{},it.t)))});
+cb.appendChild(h('div',{style:{display:'flex',gap:'8px',marginTop:'8px'}},h('input',{id:'ckIn',placeholder:'Пункт…',style:{flex:'1',background:'var(--card2)',border:'1px solid var(--sep)',borderRadius:'8px',padding:'8px 12px',fontSize:'13px'}}),h('button',{class:'btn sm b press',onclick:function(){var i=$('#ckIn');if(i&&i.value.trim()){(state.checklists[id]=state.checklists[id]||[]).push({t:i.value.trim(),done:false});save('km-ck',state.checklists);render()}}},'+')));
+body.appendChild(cb);
+var cm=state.comments[id]||[];
+var mb=h('div',{class:'card',style:{padding:'12px',marginTop:'12px'}});
+mb.appendChild(h('div',{class:'gtitle',style:{padding:'0 0 8px'}},'💬 КОММЕНТАРИИ'));
+cm.forEach(function(c){mb.appendChild(h('div',{class:'cm-card'},h('b',{},c.a),h('span',{class:'cl-gr txt-xs'},' · '+fmtDT(c.d)),h('div',{},c.t)))});
+mb.appendChild(h('div',{style:{display:'flex',gap:'8px',marginTop:'8px'}},h('input',{id:'cmIn',placeholder:'Комментарий…',style:{flex:'1',background:'var(--card2)',border:'1px solid var(--sep)',borderRadius:'8px',padding:'8px 12px',fontSize:'13px'}}),h('button',{class:'btn sm b press',onclick:function(){var i=$('#cmIn');if(i&&i.value.trim()){(state.comments[id]=state.comments[id]||[]).push({a:state.user?state.user.name:'—',d:new Date().toISOString(),t:i.value.trim()});save('km-cm',state.comments);render()}}},'➤')));
+body.appendChild(mb);
+};
+var _cr=chatRow;
+chatRow=function(c){var row=_cr(c);var last=c.last_time?new Date(c.last_time).getTime():0;if(last>(state.chatRead[c.id]||0)&&c.last&&!row.querySelector('.uread')){var t=row.querySelector('.txt-xs');if(t)t.parentNode.insertBefore(h('span',{class:'uread',style:{width:'10px',height:'10px',borderRadius:'50%',background:'var(--blue)',flex:'none'}}),t)}return row};
+function attachLP(el,fn){if(!el)return;var t=null;el.addEventListener('touchstart',function(e){t=setTimeout(function(){fn(e)},450)},{passive:true});el.addEventListener('touchend',function(){clearTimeout(t)});el.addEventListener('touchmove',function(){clearTimeout(t)})}
+function showMsgMenu(msg,ev){
+var old=document.querySelector('.ctx-menu');if(old)old.remove();
+var mine=state.user&&msg.sender_id===state.user.id;
+var p=ev&&ev.changedTouches?ev.changedTouches[0]:null;
+var m=h('div',{class:'ctx-menu',style:{left:Math.min(p?p.clientX:innerWidth/2,innerWidth-200)+'px',top:Math.min(p?p.clientY:innerHeight/2,innerHeight-230)+'px'}});
+['👍','❤️','😂','🔥'].forEach(function(e){m.appendChild(h('button',{class:'ctx-item',onclick:function(){var r=state.reactions[msg.id]=state.reactions[msg.id]||{};var a=r[e]=r[e]||[];var u=state.user?state.user.id:'x';var i=a.indexOf(u);if(i>=0)a.splice(i,1);else a.push(u);save('km-react',state.reactions);m.remove();var b=$('#chatMsgs');if(b)renderMessages(b)}},e))});
+if(mine)m.appendChild(h('button',{class:'ctx-item',onclick:function(){m.remove();var nt=prompt('Текст:',msg.text||'');if(nt!==null&&nt.trim()&&sbOk)sb.from('messages').update({text:nt.trim()}).eq('id',msg.id).then(function(){loadMessages(state.activeChat.id)})}},'✏️ Редактировать'));
+document.body.appendChild(m);
+setTimeout(function(){document.addEventListener('click',function cl(){m.remove();document.removeEventListener('click',cl)},{once:true})},10);
+}
+var _rm=renderMessages;
+renderMessages=function(box){_rm(box);
+var rows=box.querySelectorAll('.mrow');
+for(var i=0;i<rows.length;i++){var m=state.activeChatMessages[i];if(!m)continue;
+var mine=state.user&&m.sender_id===state.user.id;
+var tm=rows[i].querySelector('.tm');if(tm&&mine&&tm.textContent.indexOf('✓')<0)tm.textContent=((m.read_by||[]).length>0?'✓✓ ':'✓ ')+tm.textContent;
+var r=state.reactions[m.id];if(r){var ks=Object.keys(r).filter(function(k){return r[k].length});if(ks.length&&!rows[i].querySelector('.react-row')){var rw=h('div',{class:'react-row'});ks.forEach(function(k){rw.appendChild(h('span',{class:'react-chip'+(r[k].indexOf(state.user?state.user.id:'x')>=0?' mine':'')},k+' '+r[k].length))});rows[i].appendChild(rw)}}
+attachLP(rows[i].querySelector('.bub'),function(ev){showMsgMenu(m,ev)});
+}};
+var _rcr=renderChatRoom;
+renderChatRoom=function(v){_rcr(v);var ac=state.activeChat;if(!ac)return;
+state.chatRead[ac.id]=Date.now();save('km-read',state.chatRead);
+if(sbOk){state.activeChatMessages.forEach(function(m){if(m.sender_id!==state.user.id){var rb=m.read_by||[];if(rb.indexOf(state.user.id)<0){rb.push(state.user.id);sb.from('messages').update({read_by:rb}).eq('id',m.id).catch(function(){})}}})}
+var box=v.querySelector('.chat-msgs');
+if(box&&!v.querySelector('[data-cs]'))v.insertBefore(h('div',{class:'search','data-cs':'1',style:{marginBottom:'8px'}},h('span',{html:icon('search')}),h('input',{placeholder:'Поиск…',oninput:function(e){var q=(e.target.value||'').toLowerCase();var b=$('#chatMsgs');if(b){var rs=b.querySelectorAll('.mrow');for(var i=0;i<rs.length;i++){rs[i].style.display=(!q||rs[i].textContent.toLowerCase().indexOf(q)>=0)?'':'none'}}}}),box);
+};
+var _sm=sendMessage;
+sendMessage=async function(){var inp=$('#msgInput');if(inp&&inp.value.trim()&&state.activeChat&&(!sbOk||!navigator.onLine)){var t=inp.value.trim();inp.value='';state.offQueue.push({chatId:state.activeChat.id,text:t});save('km-offq',state.offQueue);showIsland('В очереди 📤','cloud','o');return}return _sm()};
+window.addEventListener('online',function(){if(!sbOk||!state.offQueue.length)return;var q=state.offQueue.slice();state.offQueue=[];save('km-offq',state.offQueue);q.forEach(function(it){sb.from('messages').insert({chat_id:it.chatId,sender_id:state.user.id,sender_name:state.user.name,type:'text',text:it.text,time:new Date().toISOString()}).catch(function(){})});showIsland('Очередь отправлена ✅','cloud','g')});
+var _rp=renderProfile;
+renderProfile=function(v){_rp(v);
+v.appendChild(h('div',{class:'gtitle'},'🎨 АКЦЕНТ'));
+var row=h('div',{class:'card',style:{padding:'14px',display:'flex',gap:'10px'}});
+Object.keys(ACC).forEach(function(k){row.appendChild(h('button',{class:'acc-dot press'+(state.accent===k?' on':''),style:{background:ACC[k][1]},onclick:function(){state.accent=k;localStorage.setItem('km-accent',k);applyAccent();render()}}))});
+v.appendChild(row);
+v.appendChild(h('div',{class:'gtitle'},'СЕРВИС'));
+v.appendChild(h('div',{class:'card'},
+h('button',{class:'grow',onclick:function(){state.quiet=!state.quiet;localStorage.setItem('km-quiet',state.quiet?'1':'0');render()}},h('div',{class:'ava gray',html:icon('bell')}),h('div',{style:{flex:'1'}},h('b',{},'Тихие часы 22–7')),h('div',{class:'tgl'+(state.quiet?' on':'')})),
+h('button',{class:'grow',onclick:function(){state.autoDark=!state.autoDark;localStorage.setItem('km-autodark',state.autoDark?'1':'0');autoDark();render()}},h('div',{class:'ava gray',html:icon('gear')}),h('div',{style:{flex:'1'}},h('b',{},'Авто-тёмная тема')),h('div',{class:'tgl'+(state.autoDark?' on':'')}))
+));
+var sm=v.querySelectorAll('small');for(var i=0;i<sm.length;i++){if(/13\.0/.test(sm[i].textContent)){sm[i].textContent='КМ·Инженер 36';break}}
+};
+showIsland('КМ·Инженер 36 готов ✅','check','g');
+})()}
+</script>
 </body>
 </html>
